@@ -18,10 +18,17 @@ chrome.runtime.onInstalled.addListener(function() {
     }]);
   });
 });
-// 监听来自content-script的消息
+
+let list = []
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse)
 {
-    console.log('收到来自content-script的消息：');
-    console.log(request, sender, sendResponse);
-    sendResponse('我是后台，我已收到你的消息：' + JSON.stringify(request));
+  if (/studentcourse\?/.test(sender.url)) {
+    list = request.list
+    console.log('收到来自list的消息');
+    sendResponse('已经收到list');
+  }
+  if (/studentstudy\?/.test(sender.url)) {
+    console.log('收到来自play的消息');
+    sendResponse(list);
+  }
 });

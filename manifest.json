@@ -30,7 +30,11 @@
   },
   "content_scripts": [{
     "matches": ["https://mooc1-2.chaoxing.com/mycourse/studentstudy?*"],
-    "js": ["js/index.js"],
-    "run_at": "document_start"
+    "js": ["js/play.js"],
+    "run_at": "document_idle"
+  },{
+    "matches": ["https://mooc1-2.chaoxing.com/mycourse/studentcourse?*"],
+    "js": ["js/list.js"],
+    "run_at": "document_idle"
   }]
 }
