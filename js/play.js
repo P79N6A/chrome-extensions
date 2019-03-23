@@ -17,43 +17,84 @@ window.onload = function () {
   }
 }
 
-function videoPlay() {
+async function videoPlay() {
   try {
     const index = list.findIndex(item => item.id == currentId)
     let _iframe = document.getElementById('iframe')
-    const _iframe1 = _iframe.contentWindow.document.getElementsByClassName('ans-attach-online')[0]
-    if (_iframe && !_iframe1) {
+    const _iframe1 = _iframe.contentWindow.document.getElementsByClassName('ans-attach-online')
+    if (_iframe && !_iframe1[0]) {
       jumpUrl()
       return
     }
-    if (_iframe && _iframe1 && !list[index].orange) {
+    if (_iframe && _iframe1[0] && !list[index].orange) {
       jumpUrl()
       return
     }
-    _iframe = _iframe1.contentWindow
-    const nodes = _iframe.document.getElementById('video').children
-    const divClick = nodes[1]
-    const videoPlay = nodes[0]
-    const pause = _iframe.document.getElementById('ext-comp-1036')
-    const topic = _iframe.document.getElementById('ext-comp-1035')
 
-    divClick.click()
+    function playPromise(count) {
+      return new Promise((resolve, reject) => {
+        try {
+          _iframe = _iframe1[count].contentWindow
+          const nodes = _iframe.document.getElementById('video').children
+          const divClick = nodes[1]
+          const videoPlay = nodes[0]
+          const pause = _iframe.document.getElementById('ext-comp-1036')
+          const topic = _iframe.document.getElementById('ext-comp-1035')
+      
+          divClick.click()
+      
+          videoPlay.addEventListener('play', () => {
+            console.log('开始播放')
+          })
+          videoPlay.addEventListener('pause', () => {
+            if (pause && topic && pause.style.display !== 'none') {
+                topic.style.display = 'none'
+                pause.style.display = 'none'
+                videoPlay.play()
+            } else {
+              console.log('不是做题')
+            }
+          })
+          videoPlay.addEventListener('ended', () => {
+            resolve()
+          })
+        } catch (error) {
+          reject()
+        }
+      })
+    }
 
-    videoPlay.addEventListener('play', () => {
-      console.log('开始播放')
-    })
-    videoPlay.addEventListener('pause', () => {
-      if (pause && topic && pause.style.display !== 'none') {
-          topic.style.display = 'none'
-          pause.style.display = 'none'
-          videoPlay.play()
-      } else {
-        console.log('不是做题')
+    if (_iframe1.length === 0) {
+      _iframe = _iframe1[0].contentWindow
+      const nodes = _iframe.document.getElementById('video').children
+      const divClick = nodes[1]
+      const videoPlay = nodes[0]
+      const pause = _iframe.document.getElementById('ext-comp-1036')
+      const topic = _iframe.document.getElementById('ext-comp-1035')
+  
+      divClick.click()
+  
+      videoPlay.addEventListener('play', () => {
+        console.log('开始播放')
+      })
+      videoPlay.addEventListener('pause', () => {
+        if (pause && topic && pause.style.display !== 'none') {
+            topic.style.display = 'none'
+            pause.style.display = 'none'
+            videoPlay.play()
+        } else {
+          console.log('不是做题')
+        }
+      })
+      videoPlay.addEventListener('ended', () => {
+        jumpUrl()
+      })
+    } else {
+      for (let i = 0; i < _iframe1.length; i++) {
+        await playPromise(i)
       }
-    })
-    videoPlay.addEventListener('ended', () => {
       jumpUrl()
-    })
+    }
   } catch (error) {
     alert("出了点问题，建议刷新一下")
   }
