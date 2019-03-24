@@ -1,16 +1,18 @@
 let list = []
+let list1 = []
 
 const currentId = window.location.search.match(/^\?chapterId=(\d+)/)[1]
+const enc = window.location.search.match(/enc=(\w+)/)[1]
 
-// chrome.runtime.sendMessage("我需要list", function(response) {
-//   console.log("收到list")
-//   list = response
-// })
+chrome.runtime.sendMessage("我需要list", function(response) {
+  console.log("收到list")
+  list1 = response
+})
 
 window.onload = function () {
-  // if (!list || list.length === 0) {
-  //   alert("重新进入课程列表页刷新后在进一次")
-  // } else {
+  if (!list1 || list1.length === 0) {
+    alert("重新进入课程列表页刷新后在进一次")
+  } else {
     const tab1 = document.getElementById('dct1')
     const tab2 = document.getElementById('dct2')
     if (!tab1) {
@@ -20,17 +22,17 @@ window.onload = function () {
     if (tab1.title !== '视频') {
       setTimeout(() => {
         tab2.click()
-      }, getTime())
+      }, 5000)
     }
-    getList()
     setTimeout(() => {
+      getList()
       if (!list || list.length === 0) {
         alert("重新进入课程列表页刷新后在进一次")
       } else {
         videoPlay()
       }
-    }, 1000)
-  // }
+    }, 6000)
+  }
 }
 
 function getList() {
@@ -38,14 +40,14 @@ function getList() {
     return
   }
   const ncells = document.getElementsByClassName('ncells')
-  list = [...ncells].map(item => {
+  list = [...ncells].map((item, index) => {
     const ele = item.children[0]
     ele.addEventListener('click', (e) => {
       e.stopPropagation()
       e.preventDefault()
       window.location.href = `https://mooc1-2.chaoxing.com/mycourse/studentstudy?chapterId=${ele.href.match(/(\d+)'\);/)[1]}&courseId=203694600&clazzid=7368634&enc=cc2ae5c833d5165c6b7d3f7b8fd9ce00`
     })
-    return {id: ele.href.match(/(\d+)'\);/)[1], orange: /orange/.test(ele.children[0].children[0].className)}
+    return {id: ele.href.match(/(\d+)'\);/)[1], orange: list1[index].orange}
   })
 }
 
@@ -64,7 +66,7 @@ async function videoPlay() {
         } else {
           tab2.click()
         }
-      }, getTime())
+      }, 5000)
     }
 
     if (_iframe && _iframe1[0] && !list[index].orange) {
@@ -82,7 +84,7 @@ async function videoPlay() {
           const videoPlay = nodes[0]
           const pause = _iframe.document.getElementById('ext-comp-1036')
           const topic = _iframe.document.getElementById('ext-comp-1035')
-      
+          
           divClick.click()
       
           videoPlay.addEventListener('play', () => {
@@ -101,15 +103,17 @@ async function videoPlay() {
             resolve()
           })
         } catch (error) {
+          console.log(error)
           reject()
         }
       })
     }
+
     for (let i = 0; i < _iframe1.length; i++) {
       await playPromise(i)
     }
     // jumpUrl()
-    jumpAnswer()
+    // jumpAnswer()
   } catch (error) {
     console.log(error)
     alert("出了点问题，建议刷新一下")
@@ -117,15 +121,14 @@ async function videoPlay() {
 }
 
 function jumpUrl () {
+  if (!list || list.length === 0) {
+    list = list1
+  }
   const index = list.findIndex(item => item.id == currentId)
   if (index + 1 === list.length) {
     return
   }
   setTimeout(() => {
-    window.location.href = `https://mooc1-2.chaoxing.com/mycourse/studentstudy?chapterId=${list[index + 1].id}&courseId=203694600&clazzid=7368634&enc=cc2ae5c833d5165c6b7d3f7b8fd9ce00`
-  }, getTime())
-}
-
-function getTime() {
-  return Math.random() * 4 + 3
+    window.location.href = `https://mooc1-2.chaoxing.com/mycourse/studentstudy?chapterId=${list[index + 1].id}&courseId=203694600&clazzid=7368634&enc=${enc}`
+  }, 5000)
 }
