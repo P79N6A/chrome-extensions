@@ -66,6 +66,9 @@ async function videoPlay() {
         } else {
           tab2.click()
         }
+        setTimeout(() => {
+          answer()
+        }, 2000)
       }, 5000)
     }
 
@@ -73,6 +76,16 @@ async function videoPlay() {
       // jumpUrl()
       jumpAnswer()
       return
+    }
+
+    function answer() {
+      const _iframe2 = _iframe.contentWindow.document.getElementsByTagName('iframe')[0]
+      console.log(_iframe2)
+      const button = _iframe2.contentWindow.document.getElementsByClassName('ZY_sub')[0]
+      console.log(button)
+      if (!button) {
+        jumpUrl()
+      }
     }
 
     function playPromise(count) {
